@@ -4,30 +4,36 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
-import org.springframework.batch.item.*;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.io.FileInputStream;
 import java.util.Iterator;
+import java.util.List;
 
 @Component
 @Slf4j
 public class ExcelItemReader extends StepExecutionListenerSupport implements ItemStreamReader<StudentDTO>, ResourceAwareItemReaderItemStream<StudentDTO> {
 
 
-    //@Value(value = "classpath:input/students.xlsx")
+    @Autowired
+    private FileService fileService;
+
     private Resource resource;
 
     private Iterator<Row> rowIterator;
     private Workbook workbook;
 
-    private int lineCount = 0;
+    private List<Sheet> sheets;
+
+    private int fileCount = 0;
 
     @Override
     public void setResource(Resource resource) {
@@ -35,11 +41,21 @@ public class ExcelItemReader extends StepExecutionListenerSupport implements Ite
     }
 
     @Override
-    public StudentDTO read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+    public StudentDTO read() {
         log.info("Inside read method");
+        if(fileCount < sheets.size()){
+            rowIterator  = sheets.get(fileCount).iterator();
+            fileCount++;
+            return constructStudentDTO(rowIterator);
+        }else {
+            return null;
+        }
+    }
+
+    public StudentDTO constructStudentDTO(Iterator<Row> rowIterator){
         Row studentRow;
         Row studentDetailRow;
-        StudentDTO studentDTO = null;
+        StudentDTO studentDTO;
         while(rowIterator.hasNext()){
             //First part
             skipLines(rowIterator,1);
@@ -58,7 +74,7 @@ public class ExcelItemReader extends StepExecutionListenerSupport implements Ite
             studentDTO.setGrade(studentDetailRow.getCell(3).getStringCellValue());
             return studentDTO;
         }
-       return null;
+        return null;
     }
 
     public void skipLines(Iterator<Row> rowIterator,int num){
@@ -72,20 +88,27 @@ public class ExcelItemReader extends StepExecutionListenerSupport implements Ite
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        lineCount = 0;
+        fileCount = 0;
+        System.out.println("inside after step");
         return ExitStatus.COMPLETED;
     }
 
     @Override
     public void open(ExecutionContext executionContext) throws ItemStreamException {
-        try{
-            FileInputStream fileInputStream = new FileInputStream(resource.getFile());
-            workbook = new XSSFWorkbook(fileInputStream);
-            Sheet sheet = workbook.getSheetAt(0);
-            rowIterator = sheet.iterator();
-        }catch (Exception e){
-            throw new ItemStreamException("Error opening the workbook");
+        // sheets at line 37 should be assigned
+        try {
+            sheets = fileService.readExcelFilesFromClasspath("students1.xlsx", "students2.xlsx", "students3.xlsx");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+//        try{
+//            FileInputStream fileInputStream = new FileInputStream(resource.getFile());
+//            workbook = new XSSFWorkbook(fileInputStream);
+//            Sheet sheet = workbook.getSheetAt(0);
+//            rowIterator = sheet.iterator();
+//        }catch (Exception e){
+//            throw new ItemStreamException("Error opening the workbook");
+//        }
     }
 
     @Override
