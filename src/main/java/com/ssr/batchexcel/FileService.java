@@ -5,6 +5,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.apache.poi.ss.usermodel.*;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,5 +32,21 @@ public class FileService {
             }
         }
         return sheets;
+    }
+
+    public List<String> getAllFilesFromServer(String serverFolderPath){
+        File folder = new File(serverFolderPath);
+        List<String> fileNames = new ArrayList<>();
+        if (folder.exists() && folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        fileNames.add(file.getName());
+                    }
+                }
+            }
+        }
+        return fileNames;
     }
 }
