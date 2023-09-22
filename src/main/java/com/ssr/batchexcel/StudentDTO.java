@@ -1,5 +1,6 @@
 package com.ssr.batchexcel;
 
+import lombok.Builder;
 import lombok.Data;
 import java.util.List;
 
@@ -12,9 +13,11 @@ public class StudentDTO {
     private String purchasedPackage;
 
     // 2nd level
-    private String username;
-    private int age;
-    private String gender;
-    private String grade;
+//    private String username;
+//    private int age;
+//    private String gender;
+//    private String grade;
+
+    private List<StudentDetail> studentDetails;
 
 }

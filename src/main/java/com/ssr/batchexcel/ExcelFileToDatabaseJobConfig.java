@@ -29,7 +29,7 @@ public class ExcelFileToDatabaseJobConfig {
 
     @Bean
     public Step step1() {
-        return stepBuilderFactory.get("step1").<StudentDTO, Student>chunk(1)
+        return stepBuilderFactory.get("step1").<StudentDTO, StudentDTO>chunk(1)
                 .reader(excelStudentReader())
                 .processor(getStudentProcessor())
                 .writer(getStudentWriter())
@@ -38,13 +38,13 @@ public class ExcelFileToDatabaseJobConfig {
 
     @Bean
     @StepScope
-    public ItemWriter<Student> getStudentWriter(){
+    public ItemWriter<StudentDTO> getStudentWriter(){
         return new StudentWriter();
     }
 
     @Bean
     @StepScope
-    public ItemProcessor<StudentDTO, Student> getStudentProcessor(){
+    public ItemProcessor<StudentDTO, StudentDTO> getStudentProcessor(){
         return new StudentProcessor();
     }
 

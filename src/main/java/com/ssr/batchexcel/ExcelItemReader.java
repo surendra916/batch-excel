@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -56,7 +57,9 @@ public class ExcelItemReader extends StepExecutionListenerSupport implements Ite
         Row studentRow;
         Row studentDetailRow;
         StudentDTO studentDTO;
-        while(rowIterator.hasNext()){
+        StudentDetail studentDetail;
+        List<StudentDetail> studentDetailsList = null;
+        if(rowIterator.hasNext()){
             //First part
             skipLines(rowIterator,1);
             studentRow = rowIterator.next();// First set of data
@@ -67,11 +70,18 @@ public class ExcelItemReader extends StepExecutionListenerSupport implements Ite
 
             // 2nd part
             skipLines(rowIterator,2);
-            studentDetailRow = rowIterator.next();
-            studentDTO.setUsername(studentDetailRow.getCell(0).getStringCellValue());
-            studentDTO.setAge((int) studentDetailRow.getCell(1).getNumericCellValue());
-            studentDTO.setGender(studentDetailRow.getCell(2).getStringCellValue());
-            studentDTO.setGrade(studentDetailRow.getCell(3).getStringCellValue());
+            studentDetailsList = new ArrayList<>();
+            while (rowIterator.hasNext()){
+                studentDetailRow = rowIterator.next();
+                studentDetail = new StudentDetail();
+                studentDetail.setUsername(studentDetailRow.getCell(0).getStringCellValue());
+                studentDetail.setAge((int) studentDetailRow.getCell(1).getNumericCellValue());
+                studentDetail.setGender(studentDetailRow.getCell(2).getStringCellValue());
+                studentDetail.setGrade(studentDetailRow.getCell(3).getStringCellValue());
+
+                studentDetailsList.add(studentDetail);
+            }
+            studentDTO.setStudentDetails(studentDetailsList);
             return studentDTO;
         }
         return null;
