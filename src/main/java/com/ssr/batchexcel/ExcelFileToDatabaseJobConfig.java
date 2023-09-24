@@ -15,6 +15,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
+
+/*
+* Also refer the below useful article from Baeldung
+* https://www.baeldung.com/java-convert-excel-data-into-list
+* */
+
 @Configuration
 @EnableBatchProcessing
 @RequiredArgsConstructor

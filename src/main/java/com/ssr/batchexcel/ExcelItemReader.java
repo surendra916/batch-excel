@@ -59,25 +59,28 @@ public class ExcelItemReader extends StepExecutionListenerSupport implements Ite
         StudentDTO studentDTO;
         StudentDetail studentDetail;
         List<StudentDetail> studentDetailsList = null;
+        int cellNum = 0;
         if(rowIterator.hasNext()){
             //First part
             skipLines(rowIterator,1);
             studentRow = rowIterator.next();// First set of data
+            cellNum = studentRow.getFirstCellNum();
             studentDTO = new StudentDTO();
-            studentDTO.setName(studentRow.getCell(0).getStringCellValue());
-            studentDTO.setEmailAddress(studentRow.getCell(1).getStringCellValue());
-            studentDTO.setPurchasedPackage(studentRow.getCell(2).getStringCellValue());
+            studentDTO.setName(studentRow.getCell(cellNum++).getStringCellValue());
+            studentDTO.setEmailAddress(studentRow.getCell(cellNum++).getStringCellValue());
+            studentDTO.setPurchasedPackage(studentRow.getCell(cellNum).getStringCellValue());
 
             // 2nd part
             skipLines(rowIterator,2);
             studentDetailsList = new ArrayList<>();
             while (rowIterator.hasNext()){
                 studentDetailRow = rowIterator.next();
+                cellNum = studentDetailRow.getFirstCellNum();
                 studentDetail = new StudentDetail();
-                studentDetail.setUsername(studentDetailRow.getCell(0).getStringCellValue());
-                studentDetail.setAge((int) studentDetailRow.getCell(1).getNumericCellValue());
-                studentDetail.setGender(studentDetailRow.getCell(2).getStringCellValue());
-                studentDetail.setGrade(studentDetailRow.getCell(3).getStringCellValue());
+                studentDetail.setUsername(studentDetailRow.getCell(cellNum++).getStringCellValue());
+                studentDetail.setAge((int) studentDetailRow.getCell(cellNum++).getNumericCellValue());
+                studentDetail.setGender(studentDetailRow.getCell(cellNum++).getStringCellValue());
+                studentDetail.setGrade(studentDetailRow.getCell(cellNum).getStringCellValue());
 
                 studentDetailsList.add(studentDetail);
             }
